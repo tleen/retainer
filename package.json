@@ -16,12 +16,15 @@
   "dependencies" : {
     "cachy" : "latest",
     "cachy-memory" : "latest",
+    "request" : "2.33.0",
     "underscore" : "1.5.2"
   },
   "devDependencies" : {
+    "async" : "0.2.10",
     "grunt" : "0.4.2",
     "grunt-cafe-mocha" : "0.1.10",
     "grunt-contrib-jshint" : "0.8.0",
+    "reflector" : "latest",
     "should" : "3.1.2"
   },
   "scripts" : {
