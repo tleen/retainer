@@ -57,6 +57,7 @@ module.exports = function(config){
       if(has) return cache.get(key, callback);
 
       r.get(uri, function(err, response, body){
+// xx - what to do about http error codes?
 	if(err) return callback(err);
 	cache.put(key, body, function(err){
 	  if(err) return callback(err);
