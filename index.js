@@ -18,17 +18,26 @@ module.exports = function(config){
 
   var configuration = _.defaults({}, config, {
     store : require('cachy-memory')(),
-    defaults : {}
+    defaults : {},
+    concurrent : 10,
+    throttle : 0
   });
+
+  if(configuration.throttle) configuration.concurrent = 1;
 
   var cache = cachy(configuration.store,_.pick(configuration, 'duration'));
   var r = request.defaults(configuration.defaults);
 
+ // xx - document this before I forget how it worked
+  var queue = async.queue(function(task, callback){
+    r.get(task.uri, task.callback);
+    setTimeout(callback, configuration.throttle);
+  }, configuration.concurrent);
 
   var get = function(){ // url, {args-cachable}, {args-uncachable}, callback
     var args = _.toArray(arguments);
     var callback = args.pop();
-
+    
     // deconstruct uri
     var components = url.parse(args.shift(), true);
 
@@ -56,15 +65,18 @@ module.exports = function(config){
 
       if(has) return cache.get(key, callback);
 
-      r.get(uri, function(err, response, body){
-// xx - what to do about http error codes?
-	if(err) return callback(err);
-	cache.put(key, body, function(err){
+      queue.push({
+	uri : uri,
+	callback : function(err, response, body){
+	  // xx - what to do about http error codes?
 	  if(err) return callback(err);
-	  return cache.get(key, callback);
-	}); 
-      });
-    });
+	  cache.put(key, body, function(err){
+	    if(err) return callback(err);
+	    return cache.get(key, callback);
+	  }); 
+	}});
+    });	 
+	
   };
 
   var getJSON = function(){

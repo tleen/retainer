@@ -1,9 +1,9 @@
 {
   "name" : "retainer",
-  "description" : "Cachable wrapper for http/https requests",
+  "description" : "Cachable throttling wrapper for http/https requests",
   "main" : "./index",
   "author" : "Thomas Leen",
-  "version" : "0.0.3",
+  "version" : "0.0.4",
   "repository" : {
     "type" : "git",
     "url" : "https://github.com/tleen/retainer.git"

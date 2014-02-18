@@ -187,8 +187,38 @@ describe('timed cache', function(){
       return done(err);
     });
   });
-
-
 });
+
+describe('throttled', function(){
+
+  var testURL = (url + 'throttled-cache/test/');
+
+  var throttle = 3000,
+  times = 10;
+
+  var r = require('..')({
+    throttle : throttle
+  });
+
+  var threshold = (throttle * (times - 1));
+  
+  it('should execute ' + 10 + ' unique requests > ' + threshold + 'ms', function(done){
+    this.timeout(throttle * times * 2);
+
+    var then = _.now();
+
+    async.times(10, function(n, next){
+      var ts = _.now();
+      r.get(testURL + n, {title : 'request #' + n, ts : _.now()}, next);
+    }, function(err){
+      if(err) return done(err);
+      
+      var diff = _.now() - then;
+      diff.should.be.above(threshold); // drop the leading edge request
+      return done();
+    });
+  });
+});
+
 
 after(server.stop);
